@@ -77,6 +77,8 @@ void shm_test() {
   dim3 block(blockSize);
   dim3 grid(gridSize);
 
+  shmem->x = 0;
+  shmem->y = 0;
   std::cout << "Result: x=" << shmem->x << ", y=" << shmem->y << std::endl;
   my_kernel<<<grid, block>>>(shmem);
   cudaDeviceSynchronize();
