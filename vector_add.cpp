@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>
-
+#include <assert.h>
 
 // Define a simple struct to demonstrate UM usage
 struct MyStruct {
@@ -21,7 +21,7 @@ __global__ void my_kernel(MyStruct* ptr) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < 1) { // Only process the first block
     ptr->x = 100;
-    ptr->y = 100;
+    ptr->y = 105;
     printf("Kernel: x=%d, y=%f\n", ptr->x, ptr->y);
   }
 }
@@ -83,6 +83,8 @@ void shm_test() {
   my_kernel<<<grid, block>>>(shmem);
   cudaDeviceSynchronize();
   std::cout << "Result: x=" << shmem->x << ", y=" << shmem->y << std::endl;
+  assert(shmem->x = 100);
+  assert(shmem->y = 105);
 
   // Clean up
   munmap(shmem, 1024 * 1024);
