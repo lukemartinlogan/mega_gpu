@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <assert.h>
 
+#include "simple_lib.h"
+
 // Define a simple struct to demonstrate UM usage
 struct MyStruct {
   int x;
@@ -18,12 +20,16 @@ struct MyStruct {
 
 // CUDA kernel that accesses shared memory
 __global__ void my_kernel(MyStruct* ptr) {
+#ifdef __CUDA_ARCH__
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < 1) { // Only process the first block
-    ptr->x = 100;
+    ptr->x = MyClass().foo();
     ptr->y = 105;
     printf("Kernel: x=%d, y=%f\n", ptr->x, ptr->y);
   }
+#else
+  static_assert(false);
+#endif
 }
 
 void cuda_test() {
