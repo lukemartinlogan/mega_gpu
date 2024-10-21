@@ -12,11 +12,25 @@
 
 #include "simple_lib.h"
 
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+  if (code != cudaSuccess)
+  {
+    fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+    if (abort) exit(code);
+  }
+}
+
 // Define a simple struct to demonstrate UM usage
 struct MyStruct {
   int x;
   float y;
 };
+
+__global__ void basic_kernel() {
+  printf("Working?\n");
+}
 
 // CUDA kernel that accesses shared memory
 __global__ void my_kernel(MyStruct* ptr) {
@@ -27,9 +41,14 @@ __global__ void my_kernel(MyStruct* ptr) {
     ptr->y = 105;
     printf("Kernel: x=%d, y=%f\n", ptr->x, ptr->y);
   }
-#else
-  static_assert(false);
 #endif
+}
+
+void basic_test() {
+  cudaDeviceSynchronize();
+  // cudaSetDevice(0);
+  basic_kernel<<<1, 1>>>();
+  cudaDeviceSynchronize();
 }
 
 void cuda_test() {
@@ -55,7 +74,9 @@ void cuda_test() {
   dim3 grid(numBlocks);
 
   std::cout << "Result 1: x=" << hostPtr->x << ", y=" << hostPtr->y << std::endl;
-  my_kernel<<<grid, block>>>(hostPtr);
+  my_kernel<<<1, 1>>>(hostPtr);
+  gpuErrchk( cudaPeekAtLastError() );
+  gpuErrchk( cudaDeviceSynchronize() );
   cudaDeviceSynchronize();
   std::cout << "Result 2: x=" << hostPtr->x << ", y=" << hostPtr->y << std::endl;
 
