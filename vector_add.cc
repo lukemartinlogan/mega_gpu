@@ -37,7 +37,7 @@ __global__ void my_kernel(MyStruct* ptr) {
 #ifdef __CUDA_ARCH__
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < 1) { // Only process the first block
-    ptr->x = MyClass().foo();
+    ptr->x = MyCudaStruct().foo();
     ptr->y = 105;
     printf("Kernel: x=%d, y=%f\n", ptr->x, ptr->y);
   }
@@ -118,8 +118,47 @@ void shm_test() {
   close(fd);
 }
 
+__global__ void struct_kernel(MyCudaStruct *data) {
+  data->x = MyCudaStruct().foo();
+  data->y = MyCudaStruct().foo();
+}
+
+void struct_test() {
+  // Initialize CUDA runtime
+  cudaDeviceSynchronize();
+  cudaSetDevice(0);
+
+  // Allocate memory on the host and device using UM
+  size_t size = sizeof(MyCudaStruct);
+  MyCudaStruct* hostPtr = nullptr;
+  cudaHostAlloc(&hostPtr, size, cudaHostAllocMapped);
+
+  // Create a MyStruct instance and copy it to both host and device memory
+  MyCudaStruct myStruct;
+  myStruct.x = MyCudaStruct().foo();
+  myStruct.y = MyCudaStruct().foo();
+  cudaMemcpy(hostPtr, &myStruct, size, cudaMemcpyHostToHost);
+
+  // Launch a CUDA kernel that accesses the shared memory
+  int blockSize = 256;
+  int numBlocks = 1;
+  dim3 block(blockSize);
+  dim3 grid(numBlocks);
+
+  std::cout << "Result 1: x=" << hostPtr->x << ", y=" << hostPtr->y << std::endl;
+  struct_kernel<<<1, 1>>>(hostPtr);
+  gpuErrchk( cudaPeekAtLastError() );
+  gpuErrchk( cudaDeviceSynchronize() );
+  cudaDeviceSynchronize();
+  std::cout << "Result 2: x=" << hostPtr->x << ", y=" << hostPtr->y << std::endl;
+
+  // Free memory
+  cudaFreeHost(hostPtr);
+
+}
+
 int main() {
-  shm_test();
+  struct_test();
   return 0;
 }
 

@@ -7,7 +7,10 @@
 
 #include <cuda_runtime.h>
 
-class MyClass {
+class MyCudaStruct {
+ public:
+  int x;
+  int y;
  public:
   __host__ __device__ int foo();
 };

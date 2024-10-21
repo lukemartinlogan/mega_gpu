@@ -5,7 +5,7 @@
 #include "simple_lib.h"
 
 __host__ __device__
-int MyClass::foo() {
+int MyCudaStruct::foo() {
 #ifndef __CUDA_ARCH__
   return 42;
 #else
