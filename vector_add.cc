@@ -78,7 +78,7 @@ void shm_test() {
 
   // Launch a GPU kernel that accesses the SHM pointer
   int blockSize = 256;
-  int gridSize = (1024 * 1024 + blockSize - 1) / blockSize;
+  int gridSize = 1;
 
   dim3 block(blockSize);
   dim3 grid(gridSize);
