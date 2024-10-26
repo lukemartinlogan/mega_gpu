@@ -12,6 +12,7 @@ class MyCudaStruct {
   int x;
   int y;
  public:
+ __host__ __device__ MyCudaStruct();
   __host__ __device__ int foo();
 };
 

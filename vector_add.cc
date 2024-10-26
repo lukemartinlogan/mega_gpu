@@ -26,29 +26,51 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 struct MyStruct {
   int x;
   float y;
+
+  __host__ __device__
+  static void Increment() {
+    GetInstance() += 1;
+  }
+
+  __host__ __device__
+  static int& GetInstance() {
+    static int count = 0;
+    return count;
+  };
 };
 
-__global__ void basic_kernel() {
+__global__ void print_kernel() {
   printf("Working?\n");
 }
 
-// CUDA kernel that accesses shared memory
-__global__ void my_kernel(MyStruct* ptr) {
-#ifdef __CUDA_ARCH__
+void print_test() {
+  cudaDeviceSynchronize();
+  cudaSetDevice(0);
+  print_kernel<<<1, 1>>>();
+  cudaDeviceSynchronize();
+}
+
+__global__ void static_kernel() {
+  MyStruct::Increment();
+  printf("%d\n", MyStruct::GetInstance());
+}
+
+void static_test() {
+  cudaDeviceSynchronize();
+  cudaSetDevice(0);
+  for (int i = 0; i < 3; ++i) {
+    static_kernel<<<1, 1>>>();
+  }
+  cudaDeviceSynchronize();
+}
+
+__global__ void memory_kernel(MyStruct* ptr) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < 1) { // Only process the first block
     ptr->x = MyCudaStruct().foo();
     ptr->y = 105;
     printf("Kernel: x=%d, y=%f\n", ptr->x, ptr->y);
   }
-#endif
-}
-
-void basic_test() {
-  cudaDeviceSynchronize();
-  // cudaSetDevice(0);
-  basic_kernel<<<1, 1>>>();
-  cudaDeviceSynchronize();
 }
 
 void cuda_test() {
@@ -74,7 +96,7 @@ void cuda_test() {
   dim3 grid(numBlocks);
 
   std::cout << "Result 1: x=" << hostPtr->x << ", y=" << hostPtr->y << std::endl;
-  my_kernel<<<1, 1>>>(hostPtr);
+  memory_kernel<<<1, 1>>>(hostPtr);
   gpuErrchk( cudaPeekAtLastError() );
   gpuErrchk( cudaDeviceSynchronize() );
   cudaDeviceSynchronize();
@@ -107,7 +129,7 @@ void shm_test() {
   shmem->x = 0;
   shmem->y = 0;
   std::cout << "Result: x=" << shmem->x << ", y=" << shmem->y << std::endl;
-  my_kernel<<<grid, block>>>(shmem);
+  memory_kernel<<<grid, block>>>(shmem);
   cudaDeviceSynchronize();
   std::cout << "Result: x=" << shmem->x << ", y=" << shmem->y << std::endl;
   assert(shmem->x = 100);
@@ -158,7 +180,7 @@ void struct_test() {
 }
 
 int main() {
-  struct_test();
+  static_test();
   return 0;
 }
 
