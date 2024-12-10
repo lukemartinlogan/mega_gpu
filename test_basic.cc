@@ -180,7 +180,7 @@ void struct_test() {
 }
 
 int main() {
-  static_test();
+  shm_test();
   return 0;
 }
 
