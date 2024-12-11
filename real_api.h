@@ -75,41 +75,6 @@ struct RealApi {
   }
 };
 
-template<typename PosixT>
-struct InterceptorApi {
-  PosixT *posix_;
-  std::string lib_path_;
-  bool is_loaded_;
-  int lib_fd_ = -1;
-
-  static int callback(struct dl_phdr_info *info, size_t size, void *data) {
-    auto iter = (RealApiIter*)data;
-    auto lib = dlopen(info->dlpi_name, RTLD_GLOBAL | RTLD_NOW);
-    // auto lib = dlopen(info->dlpi_name, RTLD_NOLOAD | RTLD_NOW);
-    auto exists = dlsym(lib, iter->symbol_name_);
-    void *is_intercepted =
-        (void*)dlsym(lib, iter->is_intercepted_);
-    if (is_intercepted && exists && !iter->lib_path_) {
-      iter->lib_path_ = info->dlpi_name;
-      if (iter->lib_path_ == nullptr || strlen(iter->lib_path_) == 0) {
-        Dl_info dl_info;
-        if (dladdr(is_intercepted, &dl_info) == 0) {
-          iter->lib_path_ = "";
-        } else {
-          iter->lib_path_ = dl_info.dli_fname;
-        }
-      }
-    }
-    return 0;
-  }
-
-
-  InterceptorApi(const char *symbol_name,
-                 const char *is_intercepted) : is_loaded_(false) {
-    is_loaded_ = true;
-  }
-};
-
 }  // namespace hermes::adapter
 
 #undef DEPRECATED

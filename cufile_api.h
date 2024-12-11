@@ -10,80 +10,44 @@
  * have access to the file, you may request a copy from help@hdfgroup.org.   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef HERMES_ADAPTER_POSIX_H
-#define HERMES_ADAPTER_POSIX_H
+#ifndef HERMES_ADAPTER_STDIO_H
+#define HERMES_ADAPTER_STDIO_H
 #include <string>
+#include <dlfcn.h>
 #include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include "real_api.h"
-#include <hermes_shm/util/singleton.h>
-
-#ifndef O_TMPFILE
-#define O_TMPFILE 0
-#endif
-
-#ifndef _STAT_VER
-#define _STAT_VER 0
-#endif
+#include "hermes_shm/util/logging.h"
+#include <cstdio>
+#include "hermes_adapters/real_api.h"
 
 extern "C" {
-typedef int (*open_t)(const char * path, int flags,  ...);
-typedef int (*open64_t)(const char * path, int flags,  ...);
+typedef FILE * (*fopen_t)(const char * path, const char * mode);
+typedef FILE * (*fopen64_t)(const char * path, const char * mode);
 }
 
 namespace hermes::adapter {
 
-/** Used for compatability with older kernel versions */
-static int fxstat_to_fstat(int fd, struct stat * stbuf);
-
-/** Pointers to the real posix API */
-class PosixApi : public RealApi {
+/** Pointers to the real stdio API */
+class StdioApi : public RealApi {
  public:
-  bool is_loaded_ = false;
+  /** fopen */
+  fopen_t fopen = nullptr;
+  /** fopen64 */
+  fopen64_t fopen64 = nullptr;
 
- public:
-  /** open */
-  open_t open = nullptr;
-  /** open64 */
-  open64_t open64 = nullptr;
-
-  PosixApi() : RealApi("open", "posix_intercepted") {
-    open = (open_t)dlsym(real_lib_, "open");
-    REQUIRE_API(open)
-    open64 = (open64_t)dlsym(real_lib_, "open64");
-    REQUIRE_API(open64)
-  }
-
-  bool IsInterceptorLoaded() {
-    if (is_loaded_) {
-      return true;
-    }
-    InterceptorApi<PosixApi> check("open", "posix_intercepted");
-    is_loaded_ = check.is_loaded_;
-    return is_loaded_;
+  StdioApi() : RealApi("fopen", "stdio_intercepted") {
+    fopen = (fopen_t)dlsym(real_lib_, "fopen");
+    REQUIRE_API(fopen)
+    fopen64 = (fopen64_t)dlsym(real_lib_, "fopen64");
+    REQUIRE_API(fopen64)
   }
 };
-
 }  // namespace hermes::adapter
 
-// Singleton macros
 #include "hermes_shm/util/singleton.h"
 
-#define HERMES_POSIX_API \
-  hshm::EasySingleton<::hermes::adapter::PosixApi>::GetInstance()
-#define HERMES_POSIX_API_T hermes::adapter::PosixApi*
+// Singleton macros
+#define HERMES_STDIO_API \
+  hshm::EasySingleton<::hermes::adapter::StdioApi>::GetInstance()
+#define HERMES_STDIO_API_T hermes::adapter::StdioApi*
 
-
-namespace hermes::adapter {
-/** Used for compatability with older kernel versions */
-static int fxstat_to_fstat(int fd, struct stat *stbuf) {
-#ifdef _STAT_VER
-  return HERMES_POSIX_API->__fxstat(_STAT_VER, fd, stbuf);
-#endif
-}
-}  // namespace hermes::adapter
-
-#endif  // HERMES_ADAPTER_POSIX_H
+#endif  // HERMES_ADAPTER_STDIO_H
