@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/sislam6/GDS_H/mega_gpu/build",
+  "command": "/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler  --options-file CMakeFiles/simple_lib.dir/includes_CUDA.rsp  -arch=native -std=c++17 -x cu -rdc=true -c /home/sislam6/GDS_H/mega_gpu/simple_lib.cc -o CMakeFiles/simple_lib.dir/simple_lib.cc.o",
+  "file": "/home/sislam6/GDS_H/mega_gpu/simple_lib.cc"
+},
+{
+  "directory": "/home/sislam6/GDS_H/mega_gpu/build",
+  "command": "/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler  --options-file CMakeFiles/test_basic.dir/includes_CUDA.rsp  -arch=native -std=c++17 -x cu -rdc=true -c /home/sislam6/GDS_H/mega_gpu/test_basic.cc -o CMakeFiles/test_basic.dir/test_basic.cc.o",
+  "file": "/home/sislam6/GDS_H/mega_gpu/test_basic.cc"
+},
+{
+  "directory": "/home/sislam6/GDS_H/mega_gpu/build",
+  "command": "/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler  --options-file CMakeFiles/test_cufile_isa.dir/includes_CUDA.rsp  -arch=native -Xcompiler -pthread -std=c++17 -x cu -rdc=true -c /home/sislam6/GDS_H/mega_gpu/test_cufile_isa.cc -o CMakeFiles/test_cufile_isa.dir/test_cufile_isa.cc.o",
+  "file": "/home/sislam6/GDS_H/mega_gpu/test_cufile_isa.cc"
+},
+{
+  "directory": "/home/sislam6/GDS_H/mega_gpu/build",
+  "command": "/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler  --options-file CMakeFiles/test_cufile_shazzadul.dir/includes_CUDA.rsp  -arch=native -Xcompiler -pthread -std=c++17 -x cu -rdc=true -c /home/sislam6/GDS_H/mega_gpu/test_cufile_shazzadul.cc -o CMakeFiles/test_cufile_shazzadul.dir/test_cufile_shazzadul.cc.o",
+  "file": "/home/sislam6/GDS_H/mega_gpu/test_cufile_shazzadul.cc"
+}
+]

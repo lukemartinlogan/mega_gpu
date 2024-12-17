@@ -1,0 +1,1 @@
+ libsimple_lib.a -lrt -ldl -lstdc++fs  -lcudadevrt -lcudart_static -lpthread 

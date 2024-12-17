@@ -30,27 +30,27 @@ int main() {
     float *d_A, *d_B, *d_C;
 
     // Use cudaMallocManaged to ensure 4KB alignment
-    CHECK_CUDA(cudaMalloc(&d_A, size));
-    CHECK_CUDA(cudaMalloc(&d_B, size));
-    CHECK_CUDA(cudaMalloc(&d_C, size));
+    CHECK_CUDA(cudaMallocManaged(&d_A, size));
+    CHECK_CUDA(cudaMallocManaged(&d_B, size));
+    CHECK_CUDA(cudaMallocManaged(&d_C, size));
 
     // Register GPU memory with cuFile
     HERMES_CUFILE_API.cuFileBufRegister(d_C, size, 0);
 
     // Initialize input vectors on host
-   // for (int i = 0; i < N; ++i) {
-     //   d_A[i] = i * 1.0f;
-     //   d_B[i] = i * 2.0f;
-   // }
+    for (int i = 0; i < 5; ++i) {
+    std::cout << "C[" << i << "] = " << h_C[i] << std::endl;
+  }for (int i = 0; i < N; ++i) {
+        d_A[i] = i * 1.0f;
+        d_B[i] = i * 2.0f;
+    }
 
     // Perform vector addition
     vectorAdd<<<(N + 255) / 256, 256>>>(d_A, d_B, d_C, N);
     CHECK_CUDA(cudaDeviceSynchronize());
 
     std::cout << "Vector addition completed on GPU." << std::endl;
- //   for (int i = 0; i < 5; ++i) {
- //   std::cout << "C[" << i << "] = " << d_C[i] << std::endl;
- // }
+    
 
     // Open output file with O_DIRECT
     int fd_out = open("gpu_output_file.dat", O_CREAT | O_WRONLY | O_DIRECT, 0664);
@@ -61,10 +61,8 @@ int main() {
 
     CUfileHandle_t file_handle_out;
     CUfileDescr_t cf_descr = {};
-  
-    memset((void *)&cf_descr, 0, sizeof(CUfileDescr_t));
     cf_descr.handle.fd = fd_out;
-    cf_descr.type = CU_FILE_HANDLE_TYPE_OPAQUE_FD;
+
     HERMES_CUFILE_API.cuFileHandleRegister(&file_handle_out, &cf_descr);
 
     // Write result to file

@@ -1,0 +1,1 @@
+/usr/bin/g++ -Wl,-rpath -Wl,/usr/lib -Wl,--enable-new-dtags -pthread @CMakeFiles/test_cufile_isa.dir/objects1 CMakeFiles/test_cufile_isa.dir/cmake_device_link.o -o test_cufile_isa @CMakeFiles/test_cufile_isa.dir/linkLibs.rsp -L"/usr/local/cuda/targets/x86_64-linux/lib/stubs" -L"/usr/local/cuda/targets/x86_64-linux/lib"
