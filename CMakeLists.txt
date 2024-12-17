@@ -30,7 +30,7 @@ set_target_properties(test_basic PROPERTIES
 )
 
 add_executable(test_cufile_isa test_cufile_isa.cc)
-target_link_libraries(test_cufile_isa PUBLIC simple_lib ${HermesShm_LIBRARIES})
+target_link_libraries(test_cufile_isa PUBLIC simple_lib ${HermesShm_LIBRARIES} cufile)
 set_source_files_properties(test_cufile_isa.cc PROPERTIES LANGUAGE CUDA)
 set_target_properties(test_cufile_isa PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON
