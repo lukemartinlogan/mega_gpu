@@ -9,7 +9,6 @@ __global__ void vectorAdd(const float *A, const float *B, float *C, int N) {
 }
 
 int main() {
-  // Step 1: Initialize CUDA runtime
   cudaDeviceSynchronize();
   cudaSetDevice(0);
 

@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
-#include "cufile_api.h"  // Include your custom cuFile interceptor
+#include "cufile_api.h" 
 
 #define CHECK_CUDA(call)                                                       \
     do {                                                                       \
@@ -29,7 +29,6 @@ int main() {
     // GPU memory
     float *d_A, *d_B, *d_C;
 
-    // Use cudaMallocManaged to ensure 4KB alignment
     CHECK_CUDA(cudaMalloc(&d_A, size));
     CHECK_CUDA(cudaMalloc(&d_B, size));
     CHECK_CUDA(cudaMalloc(&d_C, size));
