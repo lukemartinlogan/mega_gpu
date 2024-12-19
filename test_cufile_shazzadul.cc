@@ -34,7 +34,7 @@ int main() {
     CHECK_CUDA(cudaMalloc(&d_C, size));
 
     // Register GPU memory with cuFile
-    HERMES_CUFILE_API.cuFileBufRegister(d_C, size, 0);
+    HERMES_CUFILE_API->cuFileBufRegister(d_C, size, 0);
 
     // Initialize input vectors on host
    // for (int i = 0; i < N; ++i) {
@@ -64,10 +64,10 @@ int main() {
     memset((void *)&cf_descr, 0, sizeof(CUfileDescr_t));
     cf_descr.handle.fd = fd_out;
     cf_descr.type = CU_FILE_HANDLE_TYPE_OPAQUE_FD;
-    HERMES_CUFILE_API.cuFileHandleRegister(&file_handle_out, &cf_descr);
+    HERMES_CUFILE_API->cuFileHandleRegister(&file_handle_out, &cf_descr);
 
     // Write result to file
-    ssize_t written_bytes = HERMES_CUFILE_API.cuFileWrite(file_handle_out, d_C, size, 0, 0);
+    ssize_t written_bytes = HERMES_CUFILE_API->cuFileWrite(file_handle_out, d_C, size, 0, 0);
     if (written_bytes < 0) {
         std::cerr << "cuFileWrite failed! Error code: " << written_bytes << std::endl;
         return -1;
@@ -77,8 +77,8 @@ int main() {
     close(fd_out);
 
     // Cleanup
-    HERMES_CUFILE_API.cuFileHandleDeregister(file_handle_out);
-    HERMES_CUFILE_API.cuFileBufDeregister(d_C);
+    HERMES_CUFILE_API->cuFileHandleDeregister(file_handle_out);
+    HERMES_CUFILE_API->cuFileBufDeregister(d_C);
     CHECK_CUDA(cudaFree(d_A));
     CHECK_CUDA(cudaFree(d_B));
     CHECK_CUDA(cudaFree(d_C));
