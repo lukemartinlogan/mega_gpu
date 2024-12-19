@@ -1,6 +1,0 @@
-/home/sislam6/GDS_H/mega_gpu/build/CMakeFiles/simple_lib.dir
-/home/sislam6/GDS_H/mega_gpu/build/CMakeFiles/test_basic.dir
-/home/sislam6/GDS_H/mega_gpu/build/CMakeFiles/test_cufile_isa.dir
-/home/sislam6/GDS_H/mega_gpu/build/CMakeFiles/test_cufile_shazzadul.dir
-/home/sislam6/GDS_H/mega_gpu/build/CMakeFiles/edit_cache.dir
-/home/sislam6/GDS_H/mega_gpu/build/CMakeFiles/rebuild_cache.dir
