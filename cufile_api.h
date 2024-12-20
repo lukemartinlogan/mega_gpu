@@ -1,3 +1,5 @@
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Distributed under BSD 3-Clause license.                                   *
  * Copyright by The HDF Group.                                               *
@@ -10,20 +12,28 @@
  * have access to the file, you may request a copy from help@hdfgroup.org.   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-// #endif  // CUFILE_API_H
-#ifndef CUFILE_API_H
-#define CUFILE_API_H
+#ifndef HERMES_ADAPTER_STDIO_H
+#define HERMES_ADAPTER_STDIO_H
 
-#include <cufile.h>
+#include <string>
 #include <dlfcn.h>
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
+#include <cufile.h>
+#include "hermes_shm/util/logging.h"
+#include "hermes_shm/util/singleton.h"
+#include "real_api.h"
 
+extern "C" {
+typedef FILE * (*fopen_t)(const char * path, const char * mode);
+typedef FILE * (*fopen64_t)(const char * path, const char * mode);
+}
 namespace hermes::adapter {
 
+/** CuFileApi class */
 class CuFileApi {
  public:
-  // Function pointers for cuFile APIs
   CUfileError_t (*cuFileHandleRegister)(CUfileHandle_t *, CUfileDescr_t *) = nullptr;
   CUfileError_t (*cuFileHandleDeregister)(CUfileHandle_t) = nullptr;
   ssize_t (*cuFileRead)(CUfileHandle_t, void *, size_t, off_t, size_t) = nullptr;
@@ -31,7 +41,6 @@ class CuFileApi {
   CUfileError_t (*cuFileBufRegister)(void *, size_t, uint32_t) = nullptr;
   CUfileError_t (*cuFileBufDeregister)(void *) = nullptr;
 
-  // Constructor to load symbols dynamically
   CuFileApi() {
     void *handle = dlopen("libcufile.so", RTLD_LAZY);
     if (!handle) {
@@ -39,7 +48,6 @@ class CuFileApi {
       exit(EXIT_FAILURE);
     }
 
-    // Load cuFile API symbols
     cuFileHandleRegister = (CUfileError_t (*)(CUfileHandle_t *, CUfileDescr_t *))dlsym(handle, "cuFileHandleRegister");
     cuFileHandleDeregister = (CUfileError_t (*)(CUfileHandle_t))dlsym(handle, "cuFileHandleDeregister");
     cuFileRead = (ssize_t (*)(CUfileHandle_t, void *, size_t, off_t, size_t))dlsym(handle, "cuFileRead");
@@ -47,7 +55,6 @@ class CuFileApi {
     cuFileBufRegister = (CUfileError_t (*)(void *, size_t, uint32_t))dlsym(handle, "cuFileBufRegister");
     cuFileBufDeregister = (CUfileError_t (*)(void *))dlsym(handle, "cuFileBufDeregister");
 
-    // Check for errors
     if (!cuFileHandleRegister || !cuFileHandleDeregister || !cuFileRead || 
         !cuFileWrite || !cuFileBufRegister || !cuFileBufDeregister) {
       std::cerr << "Failed to load cuFile symbols: " << dlerror() << std::endl;
@@ -56,11 +63,31 @@ class CuFileApi {
   }
 };
 
-#include "hermes_shm/util/singleton.h"
-// Singleton macro
-#define HERMES_CUFILE_API \
-  hshm::EasySingleton<::hermes::adapter::CuFileApi>::GetInstance()
+/** StdioApi class */
+class StdioApi : public RealApi {
+ public:
+  typedef FILE *(*fopen_t)(const char *path, const char *mode);
+  typedef FILE *(*fopen64_t)(const char *path, const char *mode);
+
+  fopen_t fopen = nullptr;
+  fopen64_t fopen64 = nullptr;
+
+  StdioApi() : RealApi("fopen", "stdio_intercepted") {
+    fopen = (fopen_t)dlsym(real_lib_, "fopen");
+    REQUIRE_API(fopen)
+    fopen64 = (fopen64_t)dlsym(real_lib_, "fopen64");
+    REQUIRE_API(fopen64)
+  }
+};
 
 }  // namespace hermes::adapter
 
-#endif  // CUFILE_API_H
+// Singleton macros
+#define HERMES_CUFILE_API \
+  hshm::EasySingleton<::hermes::adapter::CuFileApi>::GetInstance()
+
+#define HERMES_STDIO_API \
+  hshm::EasySingleton<::hermes::adapter::StdioApi>::GetInstance()
+#define HERMES_STDIO_API_T hermes::adapter::StdioApi*
+
+#endif  // HERMES_ADAPTER_STDIO_H
