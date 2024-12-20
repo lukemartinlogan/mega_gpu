@@ -15,15 +15,16 @@
 #ifndef HERMES_ADAPTER_STDIO_H
 #define HERMES_ADAPTER_STDIO_H
 
+#include <cstdlib>
+#include <cufile.h>
+#include "hermes_shm/util/singleton.h"
+#include "real_api.h"
+
 #include <string>
 #include <dlfcn.h>
 #include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <cufile.h>
 #include "hermes_shm/util/logging.h"
-#include "hermes_shm/util/singleton.h"
-#include "real_api.h"
+#include <cstdio>
 
 extern "C" {
 typedef FILE * (*fopen_t)(const char * path, const char * mode);
@@ -63,13 +64,15 @@ class CuFileApi {
   }
 };
 
-/** StdioApi class */
+
+/** Pointers to the real stdio API */
 class StdioApi : public RealApi {
  public:
   typedef FILE *(*fopen_t)(const char *path, const char *mode);
   typedef FILE *(*fopen64_t)(const char *path, const char *mode);
-
+  /** fopen */
   fopen_t fopen = nullptr;
+  /** fopen64 */
   fopen64_t fopen64 = nullptr;
 
   StdioApi() : RealApi("fopen", "stdio_intercepted") {
@@ -79,10 +82,9 @@ class StdioApi : public RealApi {
     REQUIRE_API(fopen64)
   }
 };
-
 }  // namespace hermes::adapter
 
-// Singleton macros
+#include "hermes_shm/util/singleton.h"
 #define HERMES_CUFILE_API \
   hshm::EasySingleton<::hermes::adapter::CuFileApi>::GetInstance()
 
