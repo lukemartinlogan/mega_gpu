@@ -37,24 +37,37 @@ int main() {
     HERMES_CUFILE_API->cuFileBufRegister(d_C, size, 0);
 
     // Initialize input vectors on host
-   // for (int i = 0; i < N; ++i) {
-     //   d_A[i] = i * 1.0f;
-     //   d_B[i] = i * 2.0f;
-   // }
+
+    // float *h_A = new float[N];
+    // float *h_B = new float[N];
+
+    // for (int i = 0; i < N; ++i) {
+    //    d_A[i] = i * 1.0f;
+    //    d_B[i] = i * 2.0f;
+    // }
+    // // Copy input vectors to device
+    // CHECK_CUDA(cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice));
+    // CHECK_CUDA(cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice));
 
     // Perform vector addition
     vectorAdd<<<(N + 255) / 256, 256>>>(d_A, d_B, d_C, N);
+
     CHECK_CUDA(cudaDeviceSynchronize());
 
-    std::cout << "Vector addition completed on GPU." << std::endl;
- //   for (int i = 0; i < 5; ++i) {
- //   std::cout << "C[" << i << "] = " << d_C[i] << std::endl;
- // }
+    // std::cout << "Vector addition completed on GPU." << std::endl;
+    // for (int i = 0; i < 5; ++i) {
+    //     std::cout << "C[" << i << "] = " << d_C[i] << std::endl;
+    // }
 
     // Open output file with O_DIRECT
     int fd_out = open("gpu_output_file.dat", O_CREAT | O_WRONLY | O_DIRECT, 0664);
     if (fd_out < 0) {
         std::cerr << "Failed to open output file: " << strerror(errno) << std::endl;
+        // delete[] h_A;
+        // delete[] h_B;
+        // CHECK_CUDA(cudaFree(d_A));
+        // CHECK_CUDA(cudaFree(d_B));
+        // CHECK_CUDA(cudaFree(d_C));
         return -1;
     }
 

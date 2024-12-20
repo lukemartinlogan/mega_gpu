@@ -19,6 +19,7 @@ bool stdio_intercepted = true;
 #include "stdio_fs_api.h"
 #include "cufile_api.h"
 
+
 using hermes::adapter::MetadataManager;
 using hermes::adapter::SeekMode;
 using hermes::adapter::AdapterStat;
@@ -29,6 +30,9 @@ using hermes::adapter::FsIoOptions;
 namespace stdfs = std::filesystem;
 
 extern "C" {
+/**
+ * STDIO
+ */
 // Intercept cuFileOpen
 int cuFileOpen(int *fd, const char *path, int flags) {
   std::cout << "Intercepted cuFileOpen: " << path << std::endl;
@@ -52,6 +56,21 @@ int cuFileClose(int fd) {
   std::cout << "Intercepted cuFileClose: " << fd << std::endl;
   return HERMES_CUFILE_API->cuFileClose(fd);
 }
+FILE *HERMES_DECL(fopen)(const char *path, const char *mode) {
+  TRANSPARENT_HERMES();
+  auto real_api = HERMES_STDIO_API;
+  auto fs_api = HERMES_STDIO_FS;
+  if (fs_api->IsPathTracked(path)) {
+    HILOG(kDebug, "Intercepting fopen({}, {})", path, mode)
+    AdapterStat stat;
+    stat.mode_str_ = mode;
+    return fs_api->Open(stat, path).hermes_fh_;
+  } else {
+    return real_api->fopen(path, mode);
+  }
+}
+
+
 /**
  * STDIO
  */
