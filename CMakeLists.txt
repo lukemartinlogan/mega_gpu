@@ -19,6 +19,15 @@ set_target_properties(simple_lib PROPERTIES
 #        POSITION_INDEPENDENT_CODE ON
 )
 
+add_library(cufile_api SHARED cufile_api.cc)
+target_link_libraries(cufile_api PUBLIC ${HermesShm_LIBRARIES})
+set_source_files_properties(cufile_api.cc PROPERTIES LANGUAGE CUDA)
+set_target_properties(cufile_api PROPERTIES
+        CUDA_SEPARABLE_COMPILATION OFF
+       CUDA_RUNTIME_LIBRARY Shared
+       POSITION_INDEPENDENT_CODE ON
+)
+
 add_executable(test_basic test_basic.cc)
 add_dependencies(test_basic simple_lib)
 target_link_libraries(test_basic PUBLIC simple_lib)
@@ -30,7 +39,7 @@ set_target_properties(test_basic PROPERTIES
 )
 
 add_executable(test_cufile_isa test_cufile_isa.cc)
-target_link_libraries(test_cufile_isa PUBLIC simple_lib ${HermesShm_LIBRARIES} cufile)
+target_link_libraries(test_cufile_isa PUBLIC simple_lib ${HermesShm_LIBRARIES} cufile_api cufile )
 set_source_files_properties(test_cufile_isa.cc PROPERTIES LANGUAGE CUDA)
 set_target_properties(test_cufile_isa PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON
@@ -46,3 +55,5 @@ set_target_properties(test_cufile_shazzadul PROPERTIES
 #        CUDA_RUNTIME_LIBRARY Shared
 #        POSITION_INDEPENDENT_CODE ON
 )
+
+

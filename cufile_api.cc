@@ -10,97 +10,129 @@
  * have access to the file, you may request a copy from help@hdfgroup.org.   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-bool stdio_intercepted = true;
+bool cuFile_Intercepted = true;
 
 #include <limits.h>
 #include <sys/file.h>
 #include <cstdio>
-#include "stdio_api.h"
-#include "stdio_fs_api.h"
 #include "cufile_api.h"
-
-
-using hermes::adapter::MetadataManager;
-using hermes::adapter::SeekMode;
-using hermes::adapter::AdapterStat;
-using hermes::adapter::File;
-using hermes::adapter::IoStatus;
-using hermes::adapter::FsIoOptions;
 
 namespace stdfs = std::filesystem;
 
-extern "C" {
-/**
- * STDIO
- */
-// Intercept cuFileOpen
-int cuFileOpen(int *fd, const char *path, int flags) {
-  std::cout << "Intercepted cuFileOpen: " << path << std::endl;
-  return HERMES_CUFILE_API->cuFileOpen(fd, path, flags);
-}
-
-// Intercept cuFileRead
-ssize_t cuFileRead(void *devPtr, size_t size, off_t fileOffset, int fd) {
-  std::cout << "Intercepted cuFileRead: " << size << " bytes" << std::endl;
-  return HERMES_CUFILE_API->cuFileRead(devPtr, size, fileOffset, fd);
-}
-
-// Intercept cuFileWrite
-ssize_t cuFileWrite(const void *devPtr, size_t size, off_t fileOffset, int fd) {
-  std::cout << "Intercepted cuFileWrite: " << size << " bytes" << std::endl;
-  return HERMES_CUFILE_API->cuFileWrite(devPtr, size, fileOffset, fd);
-}
-
-// Intercept cuFileClose
-int cuFileClose(int fd) {
-  std::cout << "Intercepted cuFileClose: " << fd << std::endl;
-  return HERMES_CUFILE_API->cuFileClose(fd);
-}
-FILE *HERMES_DECL(fopen)(const char *path, const char *mode) {
-  TRANSPARENT_HERMES();
-  auto real_api = HERMES_STDIO_API;
-  auto fs_api = HERMES_STDIO_FS;
-  if (fs_api->IsPathTracked(path)) {
-    HILOG(kDebug, "Intercepting fopen({}, {})", path, mode)
-    AdapterStat stat;
-    stat.mode_str_ = mode;
-    return fs_api->Open(stat, path).hermes_fh_;
-  } else {
-    return real_api->fopen(path, mode);
+extern "C"
+{
+  // Interceptor functions
+  CUfileError_t cuFileHandleRegister(CUfileHandle_t *fh, CUfileDescr_t *descr)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileHandleRegister(fh, descr);
   }
-}
 
-
-/**
- * STDIO
- */
-
-FILE *HERMES_DECL(fopen)(const char *path, const char *mode) {
-  TRANSPARENT_HERMES();
-  auto real_api = HERMES_STDIO_API;
-  auto fs_api = HERMES_STDIO_FS;
-  if (fs_api->IsPathTracked(path)) {
-    HILOG(kDebug, "Intercepting fopen({}, {})", path, mode)
-    AdapterStat stat;
-    stat.mode_str_ = mode;
-    return fs_api->Open(stat, path).hermes_fh_;
-  } else {
-    return real_api->fopen(path, mode);
+  void cuFileHandleDeregister(CUfileHandle_t fh)
+  {
+    //    printf("Intercepted the REAL API\n");
+    HERMES_CUFILE_API->cuFileHandleDeregister(fh);
   }
-}
 
-FILE *HERMES_DECL(fopen64)(const char *path, const char *mode) {
-  TRANSPARENT_HERMES();
-  auto real_api = HERMES_STDIO_API;
-  auto fs_api = HERMES_STDIO_FS;
-  if (fs_api->IsPathTracked(path)) {
-    HILOG(kDebug, "Intercepting fopen64({}, {})", path, mode)
-    AdapterStat stat;
-    stat.mode_str_ = mode;
-    return fs_api->Open(stat, path).hermes_fh_;
-  } else {
-    return real_api->fopen64(path, mode);
+  CUfileError_t cuFileBufRegister(const void *buf, size_t size, int flags)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileBufRegister(buf, size, flags);
   }
-}
 
-}  // extern C
+  CUfileError_t cuFileBufDeregister(const void *buf)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileBufDeregister(buf);
+  }
+
+  ssize_t cuFileRead(CUfileHandle_t fh, void *buf, size_t size, off_t offset, off_t offset2)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileRead(fh, buf, size, offset, offset2);
+  }
+
+  ssize_t cuFileWrite(CUfileHandle_t fh, const void *buf, size_t size, off_t offset, off_t offset2)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileWrite(fh, buf, size, offset, offset2);
+  }
+
+  CUfileError_t cuFileDriverOpen()
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileDriverOpen();
+  }
+
+  CUfileError_t cuFileDriverClose()
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileDriverClose();
+  }
+
+  long cuFileUseCount()
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileUseCount();
+  }
+
+  CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t *props)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileDriverGetProperties(props);
+  }
+
+  CUfileError_t cuFileDriverSetPollMode(bool poll_mode, size_t poll_threshold_size)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileDriverSetPollMode(poll_mode, poll_threshold_size);
+  }
+
+  CUfileError_t cuFileDriverSetMaxDirectIOSize(size_t size)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileDriverSetMaxDirectIOSize(size);
+  }
+
+  CUfileError_t cuFileDriverSetMaxCacheSize(size_t size)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileDriverSetMaxCacheSize(size);
+  }
+
+  CUfileError_t cuFileDriverSetMaxPinnedMemSize(size_t size)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileDriverSetMaxPinnedMemSize(size);
+  }
+
+  CUfileError_t cuFileBatchIOSetUp(CUfileBatchHandle_t *handle, unsigned flags)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileBatchIOSetUp(handle, flags);
+  }
+
+  CUfileError_t cuFileBatchIOSubmit(CUfileBatchHandle_t handle, unsigned num_ios, CUfileIOParams_t *io_params, unsigned int flags)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileBatchIOSubmit(handle, num_ios, io_params, flags);
+  }
+
+  CUfileError_t cuFileBatchIOGetStatus(CUfileBatchHandle_t handle, unsigned num_ios, unsigned *num_completed, CUfileIOEvents_t *events, struct timespec *timeout)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileBatchIOGetStatus(handle, num_ios, num_completed, events, timeout);
+  }
+
+  CUfileError_t cuFileBatchIOCancel(CUfileBatchHandle_t handle)
+  {
+    //    printf("Intercepted the REAL API\n");
+    return HERMES_CUFILE_API->cuFileBatchIOCancel(handle);
+  }
+
+  void cuFileBatchIODestroy(CUfileBatchHandle_t handle)
+  {
+    //    printf("Intercepted the REAL API\n");
+    HERMES_CUFILE_API->cuFileBatchIODestroy(handle);
+  }
+} // extern C
