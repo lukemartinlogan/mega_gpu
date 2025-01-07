@@ -1,8 +1,18 @@
+#include <hip/hip_runtime.h>
+
 #include <cstddef>
 
-#include "hermes_shm/constants/macros.h"
+/** Error checking for ROCM */
+#define HIP_ERROR_CHECK(X)                                           \
+  do {                                                               \
+    if (X != hipSuccess) {                                           \
+      hipError_t hipErr = hipGetLastError();                         \
+      printf("HIP Error %d: %s", hipErr, hipGetErrorString(hipErr)); \
+      exit(1);                                                       \
+    }                                                                \
+  } while (false)
 
 class TestLib {
  public:
-  HSHM_DLL HSHM_CROSS_FUN size_t GetSize();
+  __host__ __device__ size_t GetSize();
 };

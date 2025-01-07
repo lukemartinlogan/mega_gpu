@@ -1,4 +1,4 @@
 
 #include "test_lib.h"
 
-HSHM_DLL HSHM_CROSS_FUN size_t TestLib::GetSize() { return 0; }
+__host__ __device__ size_t TestLib::GetSize() { return 0; }

@@ -1,5 +1,5 @@
-#include "hermes_shm/constants/macros.h"
-#include "hermes_shm/util/logging.h"
+#include <hip/hip_runtime.h>
+
 #include "test_lib.h"
 
 // Create a rocm kernel that calls GetSize() from testLib
