@@ -49,13 +49,12 @@ if (WIN32)
 endif()
 
 # Generate static host+gpu lib libHipDevice.a
-set(CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_lib.cc)
+set(CPP_SOURCES test_lib.cc test_lib2.cc)
 add_library(HipDevice STATIC ${CPP_SOURCES})
 set_target_properties(HipDevice PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_source_files_properties(
-    library/library.hip
-    PROPERTIES LANGUAGE ${GPU_RUNTIME}
-)
+foreach (source_file ${CPP_SOURCES})
+    set_source_files_properties(${source_file} PROPERTIES LANGUAGE ${GPU_RUNTIME})
+endforeach()
 target_compile_definitions(HipDevice PRIVATE WITH_HIP)
 
 # Create test executable that uses libHipDevice.a
@@ -63,4 +62,3 @@ set(TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_lib_main.cc)
 add_executable(test_device_static ${TEST_SOURCES})
 add_dependencies(test_device_static HipDevice)
 target_link_libraries(test_device_static PRIVATE HipDevice)
-target_link_libraries(test_device_static PRIVATE amdhip64 amd_comgr)
