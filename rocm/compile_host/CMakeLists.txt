@@ -2,6 +2,7 @@ project(static_lib)
 
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(GPU_RUNTIME "HIP" CACHE STRING "Switches between HIP and CUDA")
 set(GPU_RUNTIMES "HIP" "CUDA")
 set_property(CACHE GPU_RUNTIME PROPERTY STRINGS ${GPU_RUNTIMES})
@@ -47,24 +48,19 @@ if (WIN32)
   set (CMAKE_CXX_CREATE_STATIC_LIBRARY "<CMAKE_AR> /out:<TARGET> <LINK_FLAGS> <OBJECTS>")
 endif()
 
-# Generate static lib libHipDevice.a
+# Generate static host+gpu lib libHipDevice.a
 set(CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_lib.cc)
 add_library(HipDevice STATIC ${CPP_SOURCES})
-
-target_compile_options(HipDevice PRIVATE -fgpu-rdc)
-target_link_libraries(HipDevice PRIVATE -fgpu-rdc)
-target_include_directories(HipDevice PRIVATE ${CMAKE_PREFIX_PATH}/hsa/include)
-set_source_files_properties(${CPP_SOURCES} PROPERTIES LANGUAGE ${GPU_RUNTIME})
+set_target_properties(HipDevice PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_source_files_properties(
+    library/library.hip
+    PROPERTIES LANGUAGE ${GPU_RUNTIME}
+)
+target_compile_definitions(HipDevice PRIVATE WITH_HIP)
 
 # Create test executable that uses libHipDevice.a
 set(TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_lib_main.cc)
 add_executable(test_device_static ${TEST_SOURCES})
 add_dependencies(test_device_static HipDevice)
-target_compile_options(test_device_static PRIVATE -fgpu-rdc)
-set_source_files_properties(${TEST_SOURCES} PROPERTIES LANGUAGE ${GPU_RUNTIME})
-if (WIN32)
-  target_link_libraries(test_device_static PRIVATE -lHipDevice -L${CMAKE_CURRENT_BINARY_DIR})
-else()
-  target_link_libraries(test_device_static PRIVATE HipDevice)
-endif()
-target_link_libraries(test_device_static PRIVATE -fgpu-rdc amdhip64 amd_comgr)
+target_link_libraries(test_device_static PRIVATE HipDevice)
+target_link_libraries(test_device_static PRIVATE amdhip64 amd_comgr)

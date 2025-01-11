@@ -1,4 +1,9 @@
+#ifdef WITH_HIP
 #include <hip/hip_runtime.h>
+#define HOST_DEV __host__ __device__
+#else
+#define HOST_DEV
+#endif
 
 #include <cstddef>
 
@@ -14,5 +19,5 @@
 
 class TestLib {
  public:
-  __host__ __device__ size_t GetSize();
+  HOST_DEV size_t GetSize();
 };
