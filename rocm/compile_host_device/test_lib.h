@@ -1,3 +1,6 @@
+#ifndef TEST_LIB_H
+#define TEST_LIB_H
+
 #include <hip/hip_runtime.h>
 
 #include <cstddef>
@@ -16,3 +19,5 @@ class TestLib {
  public:
   __host__ __device__ size_t GetSize();
 };
+
+#endif  // TEST_LIB_H
