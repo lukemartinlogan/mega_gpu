@@ -56,7 +56,12 @@ target_include_directories(HipDevice PRIVATE ${CMAKE_PREFIX_PATH}/hsa/include)
 set_source_files_properties(${CPP_SOURCES} PROPERTIES LANGUAGE ${GPU_RUNTIME})
 
 # Generate static host lib libHipDevice2.a
-
+set(CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_lib2.cc)
+add_library(HipDevice2 SHARED ${CPP_SOURCES})
+target_compile_options(HipDevice2 PRIVATE -fgpu-rdc)
+target_link_libraries(HipDevice2 PRIVATE -fgpu-rdc HipDevice)
+target_include_directories(HipDevice2 PRIVATE ${CMAKE_PREFIX_PATH}/hsa/include)
+set_source_files_properties(${CPP_SOURCES} PROPERTIES LANGUAGE ${GPU_RUNTIME})
 
 # Create test executable that uses libHipDevice.a
 set(TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_lib_main.cc)
