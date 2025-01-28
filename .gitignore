@@ -17,6 +17,9 @@ build
 *.temp_cc
 *.egg-info
 
+*my_file.txt
+*cufile.log
+
 build/
 benchmarks/HermesVFD
 
