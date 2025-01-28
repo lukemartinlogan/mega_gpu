@@ -24,8 +24,8 @@
 #include <string>
 
 #include "hermes_shm/util/logging.h"
+#include "hermes_shm/util/real_api.h"
 #include "hermes_shm/util/singleton.h"
-#include "real_api.h"
 
 extern "C" {
 typedef CUfileError_t (*cuFileHandleRegister_t)(CUfileHandle_t *,
@@ -55,6 +55,8 @@ typedef void (*cuFileBatchIODestroy_t)(CUfileBatchHandle_t);
 }
 
 namespace hermes::adapter {
+
+using hshm::RealApi;
 
 /** CuFileApi class */
 class CuFileApi : public RealApi {

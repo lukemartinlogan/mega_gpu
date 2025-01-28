@@ -16,6 +16,7 @@ build
 *.temp_h
 *.temp_cc
 *.egg-info
+*.env.cmake
 
 *my_file.txt
 *cufile.log

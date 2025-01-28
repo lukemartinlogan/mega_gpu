@@ -11,9 +11,11 @@
             "displayName": "debug",
             "description": "Sets Ninja generator, build and install directory",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/debug",
+            "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "DO_CUDA": "ON",
+                "CMAKE_CUDA_ARCHITECTURES": "75"
             }
         }
     ]

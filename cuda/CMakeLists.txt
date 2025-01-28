@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.24)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(MegaGPU LANGUAGES C CXX)
 
 #------------------------------------------------------------------------------
@@ -13,9 +12,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
         ${PROJECT_BINARY_DIR}/bin CACHE PATH "Single Directory for all Libraries")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
         ${PROJECT_BINARY_DIR}/bin CACHE PATH "Single Directory for all static libraries.")
-
-# HermesShm
-find_package(HermesShm CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
