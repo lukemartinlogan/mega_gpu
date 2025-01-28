@@ -6,7 +6,7 @@ project(mega_gpu LANGUAGES C CXX)
 #------------------------------------------------------------------------------
 
 option(DO_CUDA "Enable CUDA" OFF)
-option(DO_ROCM "Enable ROCm" ON)
+option(DO_ROCM "Enable ROCm" OFF)
 option(BUILD_SHARED_LIBS "Build as a shared library" OFF)
 
 
