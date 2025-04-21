@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.24)
 project(MegaGPU LANGUAGES C CXX)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Setup CMake Environment
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 set(HSHM_EXPORTED_TARGETS "HermesShm")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
         ${PROJECT_BINARY_DIR}/bin CACHE PATH "Single Directory for all Executables.")
@@ -33,4 +33,4 @@ target_link_libraries(test_cufile_isa PUBLIC hshm::cudacxx cufile)
 add_cuda_executable(test_cufile_shazzadul TRUE test_cufile_shazzadul.cc)
 target_link_libraries(test_cufile_shazzadul PUBLIC hshm::cudacxx)
 
-
+add_subdirectory(shared)
