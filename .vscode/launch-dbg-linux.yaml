@@ -17,6 +17,11 @@ macros:
 version: 0.2.0
 configurations:
   - macro: debug
-    launch-name: test-cufile
+    launch-name: test-cufile-isa
     program: test_cufile_isa
     args: []
+  - macro: debug
+    launch-name: test-shared
+    program: test_shared
+    args: []
+
