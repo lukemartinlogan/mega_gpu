@@ -32,4 +32,4 @@ hshm_enable_cuda(17)
 
 # add_cuda_executable(test_cufile_shazzadul TRUE test_cufile_shazzadul.cc)
 # target_link_libraries(test_cufile_shazzadul PUBLIC hshm::cudacxx)
-add_subdirectory(shared)
+add_subdirectory(shared_sym)

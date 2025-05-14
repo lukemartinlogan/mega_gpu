@@ -9,11 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-class MemoryManager2 {
- public:
-  __host__ __device__ MemoryManager2() = default;
-  template <int nothing = 0>
-  __host__ __device__ int function();
-};
+#include "hermes_shm/hermes_shm.h"
+
+extern "C" {
+void SharedTestRun();
+}
 
 #endif  // MEGAGPU__SIMPLE_LIB_H_
